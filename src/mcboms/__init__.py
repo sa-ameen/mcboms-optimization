@@ -18,14 +18,17 @@ __license__ = "MIT"
 
 from mcboms.core.optimizer import Optimizer
 from mcboms.core.alternatives import AlternativeEnumerator
-from mcboms.io.readers import load_sites, load_alternatives
+from mcboms.io.readers import load_sites, load_alternatives, load_harwood_sites
 from mcboms.io.writers import write_results
+from mcboms.data.harwood_alternatives import get_harwood_alternatives
 
 __all__ = [
     "Optimizer",
     "AlternativeEnumerator",
     "load_sites",
     "load_alternatives",
+    "load_harwood_sites",
+    "get_harwood_alternatives",
     "write_results",
     "__version__",
 ]

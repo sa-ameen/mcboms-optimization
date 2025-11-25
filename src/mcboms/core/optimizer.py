@@ -327,14 +327,20 @@ class Optimizer:
                     (self.alternatives["site_id"] == site_id) &
                     (self.alternatives["alt_id"] == alt_id)
                 ].iloc[0]
-                selected.append({
+                row_data = {
                     "site_id": site_id,
                     "alt_id": alt_id,
                     "description": alt_row.get("description", ""),
                     "total_cost": alt_row["total_cost"],
                     "total_benefit": alt_row["total_benefit"],
                     "net_benefit": alt_row["total_benefit"] - alt_row["total_cost"],
-                })
+                }
+                # Add optional columns if present
+                for col in ["resurfacing_cost", "safety_improvement_cost", 
+                           "safety_benefit", "ops_benefit", "ccm_benefit"]:
+                    if col in alt_row:
+                        row_data[col] = alt_row[col]
+                selected.append(row_data)
         
         selected_df = pd.DataFrame(selected)
         
