@@ -1,0 +1,158 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mcboms"
+version = "0.1.0"
+description = "Multidisciplinary Cost-Benefit Optimization Models for Transportation Infrastructure"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Texas A&M Transportation Institute", email = "tti@tamu.edu"}
+]
+keywords = [
+    "transportation",
+    "optimization",
+    "MILP",
+    "safety",
+    "highway",
+    "cost-benefit",
+    "infrastructure"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+dependencies = [
+    "numpy>=1.26.0",
+    "pandas>=2.1.0",
+    "gurobipy>=11.0.0",
+    "pyyaml>=6.0.1",
+    "tqdm>=4.66.0",
+    "loguru>=0.7.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.10.0",
+    "isort>=5.12.0",
+    "flake8>=6.1.0",
+    "mypy>=1.6.0",
+    "pandas-stubs>=2.1.0",
+]
+docs = [
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=1.3.0",
+]
+notebooks = [
+    "jupyter>=1.0.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+]
+all = ["mcboms[dev,docs,notebooks]"]
+
+[project.urls]
+Homepage = "https://github.com/tamu-tti/mcboms-optimization"
+Documentation = "https://mcboms.readthedocs.io"
+Repository = "https://github.com/tamu-tti/mcboms-optimization"
+Issues = "https://github.com/tamu-tti/mcboms-optimization/issues"
+
+[project.scripts]
+mcboms = "mcboms.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mcboms = ["py.typed", "config/*.yaml"]
+
+# Black configuration
+[tool.black]
+line-length = 88
+target-version = ['py311', 'py312']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+# isort configuration
+[tool.isort]
+profile = "black"
+line_length = 88
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+src_paths = ["src", "tests"]
+
+# pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "validation: marks tests as validation against benchmarks",
+]
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src/mcboms"]
+branch = true
+omit = ["*/tests/*", "*/__init__.py"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+]
+
+# mypy configuration
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+strict_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "gurobipy.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
