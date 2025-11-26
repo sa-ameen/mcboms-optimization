@@ -240,12 +240,17 @@ class Optimizer:
             )
         
         # Objective: Maximize net benefit
-        # Per Harwood (2003): Net benefit = total_benefit - safety_improvement_cost
-        # Note: Resurfacing cost is NOT subtracted from objective (it's a sunk cost)
-        #       but IS included in the budget constraint
+        # Per Harwood (2003): NBjk = PSBjk + PTOBjk + PNRjk - PRPjk - CCjk
+        # If objective_value column exists (includes penalties), use it
+        # Otherwise fall back to total_benefit - safety_improvement_cost
+        def get_objective_coeff(row):
+            if "objective_value" in row.index:
+                return row["objective_value"]
+            else:
+                return row["total_benefit"] - row.get("safety_improvement_cost", row["total_cost"])
+        
         obj_expr = gp.quicksum(
-            (row["total_benefit"] - row.get("safety_improvement_cost", row["total_cost"])) 
-            * self._variables[(row["site_id"], row["alt_id"])]
+            get_objective_coeff(row) * self._variables[(row["site_id"], row["alt_id"])]
             for _, row in self.alternatives.iterrows()
         )
         self._model.setObjective(obj_expr, GRB.MAXIMIZE)
