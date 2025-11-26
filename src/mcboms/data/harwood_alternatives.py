@@ -220,7 +220,8 @@ def get_harwood_alternatives() -> pd.DataFrame:
     # Calculate derived columns
     df["total_cost"] = df["resurfacing_cost"] + df["safety_improvement_cost"]
     df["total_benefit"] = df["safety_benefit"] + df["ops_benefit"]
-    df["net_benefit"] = df["total_benefit"] - df["total_cost"]
+    # Net benefit per Harwood: benefit minus SAFETY cost only (not resurfacing)
+    df["net_benefit"] = df["total_benefit"] - df["safety_improvement_cost"]
     
     return df
 

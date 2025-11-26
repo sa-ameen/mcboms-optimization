@@ -240,9 +240,12 @@ class Optimizer:
             )
         
         # Objective: Maximize net benefit
-        # Net benefit = total_benefit - total_cost for each selected alternative
+        # Per Harwood (2003): Net benefit = total_benefit - safety_improvement_cost
+        # Note: Resurfacing cost is NOT subtracted from objective (it's a sunk cost)
+        #       but IS included in the budget constraint
         obj_expr = gp.quicksum(
-            (row["total_benefit"] - row["total_cost"]) * self._variables[(row["site_id"], row["alt_id"])]
+            (row["total_benefit"] - row.get("safety_improvement_cost", row["total_cost"])) 
+            * self._variables[(row["site_id"], row["alt_id"])]
             for _, row in self.alternatives.iterrows()
         )
         self._model.setObjective(obj_expr, GRB.MAXIMIZE)
@@ -347,7 +350,13 @@ class Optimizer:
         # Calculate totals
         total_cost = selected_df["total_cost"].sum() if len(selected_df) > 0 else 0
         total_benefit = selected_df["total_benefit"].sum() if len(selected_df) > 0 else 0
-        net_benefit = total_benefit - total_cost
+        
+        # Net benefit per Harwood: total_benefit - safety_improvement_cost (not total_cost)
+        if len(selected_df) > 0 and "safety_improvement_cost" in selected_df.columns:
+            safety_cost = selected_df["safety_improvement_cost"].sum()
+            net_benefit = total_benefit - safety_cost
+        else:
+            net_benefit = total_benefit - total_cost
         
         # Count sites
         sites_improved = len(selected_df[selected_df["alt_id"] != 0]) if len(selected_df) > 0 else 0
